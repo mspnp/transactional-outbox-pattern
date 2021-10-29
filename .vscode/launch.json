@@ -1,0 +1,40 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Contacts EventsProcessor",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "buildEventProcessor",
+            "program": "${workspaceFolder}/Contacts.EventsProcessor/bin/Debug/net5.0/Contacts.EventsProcessor.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Contacts.EventsProcessor",
+            "stopAtEntry": false,
+            "console": "internalConsole"
+        },
+
+        {
+            "name": "Debug Contacts API",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "buildApi",
+            "program": "${workspaceFolder}/Contacts.API/bin/Debug/net5.0/Contacts.API.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Contacts.API",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            }
+        }
+    ]
+}

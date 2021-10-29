@@ -1,0 +1,11 @@
+{
+    "Cosmos": {
+        "Url": "<cosmosUri>",
+        "Key": "<cosmosKey>",
+        "Db": "<cosmosDbName>",
+        "Container": "<cosmosDbDataContainerName>"
+    },
+    "Events": {
+        "Ttl": "36000"
+    }
+}
