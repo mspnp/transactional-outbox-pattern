@@ -22,6 +22,8 @@ namespace Contacts.Infrastructure.Context
             _mediator = mediator;
         }
 
+        // for multi-threading, this should be migrated to one of the 
+        // concurrent collections of C# 
         public List<IDataObject<Entity>> DataObjects { get; } = new();
 
         public void Reset()
