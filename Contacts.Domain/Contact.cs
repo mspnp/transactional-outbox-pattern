@@ -15,13 +15,13 @@ namespace Contacts.Domain
         private Contact()
         {
             Id = Guid.NewGuid();
-            CreatedAt = DateTimeOffset.Now;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
 
         private Contact(Guid id)
         {
             Id = id;
-            CreatedAt = DateTimeOffset.Now;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
 
         public static Contact CreateNew()
@@ -54,7 +54,7 @@ namespace Contacts.Domain
             if (IsNew) return;
 
             AddEvent(new ContactNameUpdatedEvent(Id, Name));
-            ModifiedAt = DateTimeOffset.Now;
+            ModifiedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetDescription(string description)
@@ -64,7 +64,7 @@ namespace Contacts.Domain
             if (IsNew) return;
 
             AddEvent(new ContactDescriptionUpdatedEvent(Id, Description));
-            ModifiedAt = DateTimeOffset.Now;
+            ModifiedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetEmail(string email)
@@ -74,7 +74,7 @@ namespace Contacts.Domain
             if (IsNew) return;
 
             AddEvent(new ContactEmailUpdatedEvent(Id, Email));
-            ModifiedAt = DateTimeOffset.Now;
+            ModifiedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetCompany(string companyName, string street, string houseNumber, string postalCode, string city,
@@ -90,7 +90,7 @@ namespace Contacts.Domain
             if (IsNew) return;
             
             AddEvent(new ContactCompanyUpdatedEvent(Id, Company));
-            ModifiedAt = DateTimeOffset.Now;
+            ModifiedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetDeleted()
@@ -98,7 +98,7 @@ namespace Contacts.Domain
             if (IsNew) return;
             
             AddEvent(new ContactDeletedEvent(Id));
-            DeletedAt = DateTimeOffset.Now;
+            DeletedAt = DateTimeOffset.UtcNow;
             Deleted = true;
         }
     }

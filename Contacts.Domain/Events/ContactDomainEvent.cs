@@ -14,7 +14,7 @@ namespace Contacts.Domain.Events
             Id = id;
             ContactId = contactId;
             Action = action;
-            CreatedAt = DateTimeOffset.Now;
+            CreatedAt = DateTimeOffset.UtcNow;
         }
     }
 }

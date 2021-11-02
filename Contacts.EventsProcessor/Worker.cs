@@ -58,13 +58,13 @@ namespace Contacts.EventsProcessor
         {
             _logger.LogInformation(
                 "Events Processor (Contacts) running at: {time}.",
-                DateTimeOffset.Now);
+                DateTimeOffset.UtcNow);
             _cfp = await StartChangeFeedProcessorAsync();
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Stopping Events Processor (Contacts) at: {time}", DateTimeOffset.Now);
+            _logger.LogInformation("Stopping Events Processor (Contacts) at: {time}", DateTimeOffset.UtcNow);
             await _cfp.StopAsync();
             await _topicSender.DisposeAsync();
             await _sbClient.DisposeAsync();
