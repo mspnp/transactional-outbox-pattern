@@ -45,28 +45,28 @@ namespace Contacts.Infrastructure.Context
             switch (DataObjects.Count)
             {
                 case 1:
-                {
-                    var result = await SaveSingleAsync(DataObjects[0], cancellationToken);
-                    return result;
-                }
+                    {
+                        var result = await SaveSingleAsync(DataObjects[0], cancellationToken);
+                        return result;
+                    }
                 case > 1:
-                {
-                    var result = await SaveInTransactionalBatchAsync(DataObjects, cancellationToken);
-                    return result;
-                }
+                    {
+                        var result = await SaveInTransactionalBatchAsync(cancellationToken);
+                        return result;
+                    }
                 default:
                     return new List<IDataObject<Entity>>();
             }
         }
 
-        private async Task<List<IDataObject<Entity>>> SaveInTransactionalBatchAsync(List<IDataObject<Entity>> dObjs,
+        private async Task<List<IDataObject<Entity>>> SaveInTransactionalBatchAsync(
             CancellationToken cancellationToken)
         {
-            if (dObjs.Count > 0)
+            if (DataObjects.Count > 0)
             {
-                var pk = new PartitionKey(dObjs[0].PartitionKey);
+                var pk = new PartitionKey(DataObjects[0].PartitionKey);
                 var tb = Container.CreateTransactionalBatch(pk);
-                dObjs.ForEach(o =>
+                DataObjects.ForEach(o =>
                 {
                     TransactionalBatchItemRequestOptions tro = null;
 
@@ -87,7 +87,7 @@ namespace Contacts.Infrastructure.Context
                 var tbResult = await tb.ExecuteAsync(cancellationToken);
 
                 if (!tbResult.IsSuccessStatusCode)
-                    for (var i = 0; i < dObjs.Count; i++)
+                    for (var i = 0; i < DataObjects.Count; i++)
                         if (tbResult[i].StatusCode != HttpStatusCode.FailedDependency)
                         {
                             // Not recoverable - clear context
@@ -95,11 +95,13 @@ namespace Contacts.Infrastructure.Context
                             throw EvaluateCosmosError(tbResult[i].StatusCode);
                         }
 
-                for (var i = 0; i < dObjs.Count; i++) dObjs[i].Etag = tbResult[i].ETag;
+                for (var i = 0; i < DataObjects.Count; i++)
+                    DataObjects[i].Etag = tbResult[i].ETag;
             }
 
-            var result = new List<IDataObject<Entity>>(dObjs);
-            // reset internal list
+            var result = new List<IDataObject<Entity>>(DataObjects); // return copy of list as result
+
+            // work has been successfully done - reset DataObjects list
             DataObjects.Clear();
             return result;
         }
@@ -137,7 +139,7 @@ namespace Contacts.Infrastructure.Context
                 dObj.Etag = response.ETag;
                 var result = new List<IDataObject<Entity>>(1) { dObj };
 
-                // reset internal list
+                // work has been successfully done - reset DataObjects list
                 DataObjects.Clear();
                 return result;
             }
