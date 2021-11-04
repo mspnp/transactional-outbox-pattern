@@ -14,6 +14,9 @@ namespace Contacts.Domain
         [JsonProperty] public bool Deleted { get; protected set; }
 
         [JsonIgnore] protected bool IsNew { get; init; }
+        
+        // for multi-threading, this should be migrated to one of the 
+        // concurrent collections of C# 
         private readonly List<IEvent> _events = new();
 
         [JsonIgnore] public IReadOnlyList<IEvent> DomainEvents => _events.AsReadOnly();
