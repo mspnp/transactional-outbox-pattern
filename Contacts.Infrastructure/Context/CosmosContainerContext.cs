@@ -22,6 +22,8 @@ namespace Contacts.Infrastructure.Context
             _mediator = mediator;
         }
 
+        // for multi-threading, this should be migrated to one of the 
+        // concurrent collections of C# 
         public List<IDataObject<Entity>> DataObjects { get; } = new();
 
         public void Reset()
@@ -45,15 +47,15 @@ namespace Contacts.Infrastructure.Context
             switch (DataObjects.Count)
             {
                 case 1:
-                {
-                    var result = await SaveSingleAsync(DataObjects[0], cancellationToken);
-                    return result;
-                }
+                    {
+                        var result = await SaveSingleAsync(DataObjects[0], cancellationToken);
+                        return result;
+                    }
                 case > 1:
-                {
-                    var result = await SaveInTransactionalBatchAsync(cancellationToken);
-                    return result;
-                }
+                    {
+                        var result = await SaveInTransactionalBatchAsync(cancellationToken);
+                        return result;
+                    }
                 default:
                     return new List<IDataObject<Entity>>();
             }
