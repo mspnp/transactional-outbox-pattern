@@ -47,15 +47,15 @@ namespace Contacts.Infrastructure.Context
             switch (DataObjects.Count)
             {
                 case 1:
-                    {
-                        var result = await SaveSingleAsync(DataObjects[0], cancellationToken);
-                        return result;
-                    }
+                {
+                    var result = await SaveSingleAsync(DataObjects[0], cancellationToken);
+                    return result;
+                }
                 case > 1:
-                    {
-                        var result = await SaveInTransactionalBatchAsync(cancellationToken);
-                        return result;
-                    }
+                {
+                    var result = await SaveInTransactionalBatchAsync(cancellationToken);
+                    return result;
+                }
                 default:
                     return new List<IDataObject<Entity>>();
             }
