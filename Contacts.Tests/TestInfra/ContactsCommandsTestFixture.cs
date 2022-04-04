@@ -9,31 +9,30 @@ using Contacts.Infrastructure.Repositories;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Contacts.Tests.TestInfra
+namespace Contacts.Tests.TestInfra;
+
+public class ContactsCommandsTestFixture : IDisposable
 {
-    public class ContactsCommandsTestFixture : IDisposable
-    {
-        public ServiceProvider Provider { get; }
-        public Guid CurrentId { get; }
+    public ServiceProvider Provider { get; }
+    public Guid CurrentId { get; }
         
 
-        public ContactsCommandsTestFixture()
-        {
-            ContactPartitionKeyProvider partitionKeyProvider = new();
-            CurrentId=Guid.NewGuid();
+    public ContactsCommandsTestFixture()
+    {
+        ContactPartitionKeyProvider partitionKeyProvider = new();
+        CurrentId=Guid.NewGuid();
             
-            Provider = new ServiceCollection()
-                .AddSingleton<IContactPartitionKeyProvider>(partitionKeyProvider)
-                .AddScoped<IContainerContext, TestContainerContext>()
-                .AddScoped<IEventRepository, InMemoryEventRepo>()
-                .AddScoped<IContactRepository, InMemoryContactsRepo>()
-                .AddScoped<IUnitOfWork, UnitOfWork>()
-                .AddMediatR(typeof(Contact), typeof(ContactCompanyUpdatedHandler), typeof(CreateContactCommand))
-                .BuildServiceProvider();
-        }
+        Provider = new ServiceCollection()
+            .AddSingleton<IContactPartitionKeyProvider>(partitionKeyProvider)
+            .AddScoped<IContainerContext, TestContainerContext>()
+            .AddScoped<IEventRepository, InMemoryEventRepo>()
+            .AddScoped<IContactRepository, InMemoryContactsRepo>()
+            .AddScoped<IUnitOfWork, UnitOfWork>()
+            .AddMediatR(typeof(Contact), typeof(ContactCompanyUpdatedHandler), typeof(CreateContactCommand))
+            .BuildServiceProvider();
+    }
 
-        public void Dispose()
-        {
-        }
+    public void Dispose()
+    {
     }
 }

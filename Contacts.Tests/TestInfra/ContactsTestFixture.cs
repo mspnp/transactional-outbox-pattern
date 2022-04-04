@@ -1,12 +1,12 @@
-﻿namespace Contacts.Tests.TestInfra
-{
-    public class ContactsTestFixture
-    {
-        public string JsonObject { get; }
+﻿namespace Contacts.Tests.TestInfra;
 
-        public ContactsTestFixture()
-        {
-            JsonObject = @"
+public class ContactsTestFixture
+{
+    public string JsonObject { get; }
+
+    public ContactsTestFixture()
+    {
+        JsonObject = @"
                 {
                     ""name"": {
                         ""firstName"": ""John"",
@@ -24,6 +24,5 @@
                     },
                     ""id"": ""0001f5bb-d4a9-48ba-af80-3db52bfd7411""
                 }";
-        }
     }
 }

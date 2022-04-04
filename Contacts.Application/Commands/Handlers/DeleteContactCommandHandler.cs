@@ -8,30 +8,29 @@ using Contacts.Infrastructure;
 using Contacts.Infrastructure.Context;
 using MediatR;
 
-namespace Contacts.Application.Commands.Handlers
+namespace Contacts.Application.Commands.Handlers;
+
+public class DeleteContactCommandHandler : IRequestHandler<DeleteContactCommand, DeleteContactCommandResponse>
 {
-    public class DeleteContactCommandHandler : IRequestHandler<DeleteContactCommand, DeleteContactCommandResponse>
+    private readonly IUnitOfWork _unitOfWork;
+
+    public DeleteContactCommandHandler(IUnitOfWork unitOfWork)
     {
-        private readonly IUnitOfWork _unitOfWork;
+        _unitOfWork = unitOfWork;
+    }
 
-        public DeleteContactCommandHandler(IUnitOfWork unitOfWork)
+    public async Task<DeleteContactCommandResponse> Handle(DeleteContactCommand request,
+        CancellationToken cancellationToken)
+    {
+        await _unitOfWork.ContactsRepo.DeleteAsync(request.Id, request.Etag);
+
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
+        var cResult = result.FirstOrDefault(r => r is DataObject<Contact>);
+        if (cResult != null)
         {
-            _unitOfWork = unitOfWork;
+            return new DeleteContactCommandResponse(Guid.Parse(cResult.Id), cResult.Etag);
         }
 
-        public async Task<DeleteContactCommandResponse> Handle(DeleteContactCommand request,
-            CancellationToken cancellationToken)
-        {
-            await _unitOfWork.ContactsRepo.DeleteAsync(request.Id, request.Etag);
-
-            var result = await _unitOfWork.CommitAsync(cancellationToken);
-            var cResult = result.FirstOrDefault(r => r is DataObject<Contact>);
-            if (cResult != null)
-            {
-                return new DeleteContactCommandResponse(Guid.Parse(cResult.Id), cResult.Etag);
-            }
-
-            throw new Exception("Error saving contact");
-        }
+        throw new Exception("Error saving contact");
     }
 }

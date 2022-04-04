@@ -4,11 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Contacts.Infrastructure.Context;
 
-namespace Contacts.Infrastructure
+namespace Contacts.Infrastructure;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        IContactRepository ContactsRepo { get; }
-        Task<List<IDataObject<Entity>>> CommitAsync(CancellationToken cancellationToken = default);
-    }
+    IContactRepository ContactsRepo { get; }
+    Task<List<IDataObject<Entity>>> CommitAsync(CancellationToken cancellationToken = default);
 }

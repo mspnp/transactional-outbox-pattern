@@ -1,10 +1,9 @@
-﻿namespace Contacts.Infrastructure.Context
+﻿namespace Contacts.Infrastructure.Context;
+
+public enum EntityState
 {
-    public enum EntityState
-    {
-        Created,
-        Updated,
-        Deleted,
-        Unmodified,
-    }
+    Created,
+    Updated,
+    Deleted,
+    Unmodified,
 }

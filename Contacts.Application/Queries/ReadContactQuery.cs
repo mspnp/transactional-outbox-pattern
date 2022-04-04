@@ -2,11 +2,10 @@
 using Contacts.Application.Queries.Responses;
 using MediatR;
 
-namespace Contacts.Application.Queries
+namespace Contacts.Application.Queries;
+
+public class ReadContactQuery : IRequest<ReadContactQueryResponse>
 {
-    public class ReadContactQuery : IRequest<ReadContactQueryResponse>
-    {
-        public Guid Id { get; set; }
-        public string Etag { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Etag { get; set; }
 }
