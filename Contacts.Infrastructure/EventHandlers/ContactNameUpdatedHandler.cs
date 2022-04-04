@@ -2,22 +2,21 @@
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
-namespace Contacts.Infrastructure.EventHandlers
+namespace Contacts.Infrastructure.EventHandlers;
+
+public class ContactNameUpdatedHandler : INotificationHandler<ContactNameUpdatedEvent>
 {
-    public class ContactNameUpdatedHandler : INotificationHandler<ContactNameUpdatedEvent>
+    private IEventRepository EventRepository { get; }
+
+    public ContactNameUpdatedHandler(IEventRepository eventRepo)
     {
-        private IEventRepository EventRepository { get; }
-
-        public ContactNameUpdatedHandler(IEventRepository eventRepo)
-        {
-            EventRepository = eventRepo;
-        }
+        EventRepository = eventRepo;
+    }
 
 
-        public Task Handle(ContactNameUpdatedEvent notification, CancellationToken cancellationToken)
-        {
-            EventRepository.Create(notification);
-            return Task.CompletedTask;
-        }
+    public Task Handle(ContactNameUpdatedEvent notification, CancellationToken cancellationToken)
+    {
+        EventRepository.Create(notification);
+        return Task.CompletedTask;
     }
 }

@@ -1,19 +1,18 @@
 using System;
 
-namespace Contacts.Infrastructure.Exceptions
+namespace Contacts.Infrastructure.Exceptions;
+
+public class DomainObjectConflictException : Exception
 {
-    public class DomainObjectConflictException : Exception
+    public DomainObjectConflictException()
     {
-        public DomainObjectConflictException()
-        {
-        }
+    }
 
-        public DomainObjectConflictException(string message) : base(message)
-        {
-        }
+    public DomainObjectConflictException(string message) : base(message)
+    {
+    }
 
-        public DomainObjectConflictException(string message, Exception inner) : base(message, inner)
-        {
-        }
+    public DomainObjectConflictException(string message, Exception inner) : base(message, inner)
+    {
     }
 }

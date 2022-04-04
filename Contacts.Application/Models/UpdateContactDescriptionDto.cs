@@ -1,6 +1,5 @@
-namespace Contacts.Application.Models
-{
-    public record UpdateContactDescriptionDto(
-        string Description
-    );
-}
+namespace Contacts.Application.Models;
+
+public record UpdateContactDescriptionDto(
+    string Description
+);

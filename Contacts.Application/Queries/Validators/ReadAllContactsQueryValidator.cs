@@ -1,13 +1,12 @@
 using FluentValidation;
 
-namespace Contacts.Application.Queries.Validators
+namespace Contacts.Application.Queries.Validators;
+
+public class ReadAllContactsQueryValidator : AbstractValidator<ReadAllContactsQuery>
 {
-    public class ReadAllContactsQueryValidator : AbstractValidator<ReadAllContactsQuery>
+    public ReadAllContactsQueryValidator()
     {
-        public ReadAllContactsQueryValidator()
-        {
-            RuleFor(x => x.PageSize)
-                .GreaterThan(0);
-        }
+        RuleFor(x => x.PageSize)
+            .GreaterThan(0);
     }
 }

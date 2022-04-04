@@ -1,6 +1,5 @@
-namespace Contacts.Application.Models
-{
-    public record UpdateContactEmailDto(
-        string Email
-    );
-}
+namespace Contacts.Application.Models;
+
+public record UpdateContactEmailDto(
+    string Email
+);
