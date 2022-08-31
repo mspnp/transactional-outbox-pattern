@@ -1,7 +1,7 @@
-var location = resourceGroup().location
+param location string = resourceGroup().location
 
 // Cosmos DB Account
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
   name: 'cosmos-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'GlobalDocumentDB'
@@ -22,7 +22,7 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
 }
 
 // Cosmos DB
-resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-03-15' = {
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
   name: '${cosmosDbAccount.name}/tobp'
   location: location
   properties: {
@@ -38,7 +38,7 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@20
 }
 
 // Data Container
-resource containerData 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-03-15' = {
+resource containerData 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
   name: '${cosmosDbDatabase.name}/data'
   location: location
   properties: {
@@ -70,7 +70,7 @@ resource containerData 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/conta
 }
 
 // Leases Container
-resource containerLeases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-03-15' = {
+resource containerLeases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
   name: '${cosmosDbDatabase.name}/leases'
   location: location
   properties: {
@@ -101,7 +101,7 @@ resource containerLeases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/con
 }
 
 // ServiceBus
-resource sb 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
+resource sb 'Microsoft.ServiceBus/namespaces@2021-11-01' = {
   name: 'sb-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
@@ -109,7 +109,7 @@ resource sb 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
     tier: 'Standard'
   }
   // Contacts Topic
-  resource sbtContacts 'topics@2017-04-01' = {
+  resource sbtContacts 'topics@2021-11-01' = {
     name: 'sbt-contacts'
     properties: {
       defaultMessageTimeToLive: 'P2D'
@@ -122,8 +122,8 @@ resource sb 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
       enablePartitioning: true
       enableExpress: false
     }
-    
-    resource sbtTestSubscription 'subscriptions@2017-04-01' = {
+
+    resource sbtTestSubscription 'subscriptions@2021-11-01' = {
       name: 'testSubscription'
       properties: {
         lockDuration: 'PT5M'
@@ -139,7 +139,7 @@ resource sb 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
 }
 
 // Storage Account for Function
-resource stgForFunctions 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+resource stgForFunctions 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   name: 'stfn${take(uniqueString(resourceGroup().id), 11)}'
   location: location
   kind: 'StorageV2'
@@ -149,7 +149,7 @@ resource stgForFunctions 'Microsoft.Storage/storageAccounts@2021-02-01' = {
 }
 
 // ApplicationInsights
-resource appi 'Microsoft.Insights/components@2015-05-01' = {
+resource appi 'Microsoft.Insights/components@2020-02-02' = {
   name: 'appi-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'web'
@@ -159,17 +159,18 @@ resource appi 'Microsoft.Insights/components@2015-05-01' = {
 }
 
 // Dynamic Hostingplan
-resource hostingPlan 'Microsoft.Web/serverfarms@2020-10-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: 'plan-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
-    name: 'Y1' 
+    name: 'Y1'
     tier: 'Dynamic'
   }
+  properties: {}
 }
 
 // Function App
-resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
+resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
   name: 'funcapp-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'functionapp'
@@ -187,16 +188,16 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           value: 'DefaultEndpointsProtocol=https;AccountName=${stgForFunctions.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(stgForFunctions.id, stgForFunctions.apiVersion).keys[0].value}'
         }
         {
-          'name': 'FUNCTIONS_EXTENSION_VERSION'
-          'value': '~3'
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~3'
         }
         {
-          'name': 'FUNCTIONS_WORKER_RUNTIME'
-          'value': 'dotnet'
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet'
         }
         {
-          'name': 'SERVICEBUS_CONNECTION'
-          'value': '${listKeys('${sb.id}/AuthorizationRules/RootManageSharedAccessKey', sb.apiVersion).primaryConnectionString}'
+          name: 'SERVICEBUS_CONNECTION'
+          value: '${listKeys('${sb.id}/AuthorizationRules/RootManageSharedAccessKey', sb.apiVersion).primaryConnectionString}'
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
@@ -205,17 +206,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
       ]
     }
   }
-
-  dependsOn: [
-    appi
-    hostingPlan
-    stgForFunctions
-    sb
-  ]
 }
 
 // Function
-resource function 'Microsoft.Web/sites/functions@2020-12-01' = {
+resource function 'Microsoft.Web/sites/functions@2022-03-01' = {
   name: '${functionApp.name}/funcapp-tobp-${uniqueString(resourceGroup().id)}'
   properties: {
     function_app_id: functionApp.id
@@ -241,23 +235,21 @@ public static void Run(string mySbMsg, ILogger log)
     log.LogInformation($"C# ServiceBus topic trigger function processed message: {mySbMsg}");
 }'''
     }
-    
+
   }
-  dependsOn: [
-    functionApp
-  ]
 }
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-01-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: 'appservice-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
     name: 'S1'
     capacity: 1
   }
+  properties: {}
 }
 
-resource appService 'Microsoft.Web/sites@2021-01-01' = {
+resource appService 'Microsoft.Web/sites@2022-03-01' = {
   name: 'webapp-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
@@ -295,11 +287,6 @@ resource appService 'Microsoft.Web/sites@2021-01-01' = {
       ]
     }
   }
-
-  dependsOn: [
-    appServicePlan
-    cosmosDbAccount
-  ]
 }
 
 output sbConnectionString string = listKeys('${sb.id}/AuthorizationRules/RootManageSharedAccessKey', sb.apiVersion).primaryConnectionString
