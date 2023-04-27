@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Contacts.Application.Commands;
 using Contacts.Domain;
 using Contacts.Domain.Events;
 using Contacts.Infrastructure;
 using Contacts.Infrastructure.Context;
 using Contacts.Infrastructure.EventHandlers;
 using Contacts.Infrastructure.Repositories;
-using MediatR;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +36,7 @@ public class ContactsIntegrationTestFixture : IDisposable
             PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
             IgnoreNullValues = true
         };
-        var containers = new List<(string, string)> 
+        var containers = new List<(string, string)>
         {
             (configuration.GetSection("Cosmos")["Db"], configuration.GetSection("Cosmos")["Container"])
         };
@@ -57,7 +57,9 @@ public class ContactsIntegrationTestFixture : IDisposable
             .AddScoped<IEventRepository, EventRepository>()
             .AddScoped<IContactRepository, ContactRepository>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddMediatR(typeof(Contact), typeof(ContactCompanyUpdatedHandler))
+            .AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Contact).Assembly,
+                typeof(CreateContactCommand).Assembly,
+                typeof(ContactCreatedHandler).Assembly))
             .BuildServiceProvider();
     }
 

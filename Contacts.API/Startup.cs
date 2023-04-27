@@ -63,7 +63,9 @@ public class Startup
             .AddScoped<IEventRepository, EventRepository>()
             .AddScoped<IContactRepository, ContactRepository>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddMediatR(typeof(Contact), typeof(ContactCompanyUpdatedHandler), typeof(CreateContactCommand));
+            .AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Contact).Assembly,
+                typeof(CreateContactCommand).Assembly,
+                typeof(ContactCreatedHandler).Assembly));
 
         services.AddRouting(options => options.LowercaseUrls = true);
         services.AddControllers();
@@ -80,7 +82,7 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
         }
-            
+
         app.UseSwagger();
         app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Contacts.API v1"));
 
