@@ -15,8 +15,8 @@ public class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineBehavior
         _validator = validator;
     }
 
-    public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken,
-        RequestHandlerDelegate<TResponse> next)
+    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
         _validator.ValidateAndThrow(request);
         return next();
