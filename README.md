@@ -14,7 +14,7 @@ The source code is structured as follows:
 
 To run the sample application on your local machine, you need to have the following components installed:
 
-- [.NET Core 7.0 SDK](https://dotnet.microsoft.com/download/dotnet/7.0)
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Visual Studio Code](https://code.visualstudio.com/download)
 
 You also need to create some Azure resources:

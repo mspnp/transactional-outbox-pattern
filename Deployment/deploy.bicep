@@ -1,7 +1,7 @@
 param location string = resourceGroup().location
 
 // Cosmos DB Account
-resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
+resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
   name: 'cosmos-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'GlobalDocumentDB'
@@ -22,8 +22,9 @@ resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
 }
 
 // Cosmos DB
-resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
-  name: '${cosmosDbAccount.name}/tobp'
+resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-09-15' = {
+  parent: cosmosDbAccount
+  name: 'tobp'
   location: location
   properties: {
     resource: {
@@ -38,8 +39,9 @@ resource cosmosDbDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@20
 }
 
 // Data Container
-resource containerData 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
-  name: '${cosmosDbDatabase.name}/data'
+resource containerData 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-09-15' = {
+  parent: cosmosDbDatabase
+  name: 'data'
   location: location
   properties: {
     resource: {
@@ -70,8 +72,9 @@ resource containerData 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/conta
 }
 
 // Leases Container
-resource containerLeases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-05-15' = {
-  name: '${cosmosDbDatabase.name}/leases'
+resource containerLeases 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-09-15' = {
+  parent: cosmosDbDatabase
+  name: 'leases'
   location: location
   properties: {
     resource: {
@@ -139,7 +142,7 @@ resource sb 'Microsoft.ServiceBus/namespaces@2021-11-01' = {
 }
 
 // Storage Account for Function
-resource stgForFunctions 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource stgForFunctions 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: 'stfn${take(uniqueString(resourceGroup().id), 11)}'
   location: location
   kind: 'StorageV2'
@@ -149,17 +152,28 @@ resource stgForFunctions 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 }
 
 // ApplicationInsights
+resource workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+  name: 'ws-tobp-${uniqueString(resourceGroup().id)}'
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+  }
+}
+
 resource appi 'Microsoft.Insights/components@2020-02-02' = {
   name: 'appi-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'web'
   properties: {
     Application_Type: 'web'
+    WorkspaceResourceId: workspace.id
   }
 }
 
 // Dynamic Hostingplan
-resource hostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: 'plan-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
@@ -170,7 +184,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2022-03-01' = {
 }
 
 // Function App
-resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+resource functionApp 'Microsoft.Web/sites@2022-09-01' = {
   name: 'funcapp-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   kind: 'functionapp'
@@ -185,11 +199,11 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${stgForFunctions.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(stgForFunctions.id, stgForFunctions.apiVersion).keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${stgForFunctions.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stgForFunctions.listKeys().keys[0].value}'
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~3'
+          value: '~4'
         }
         {
           name: 'FUNCTIONS_WORKER_RUNTIME'
@@ -201,7 +215,7 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${stgForFunctions.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(stgForFunctions.id, stgForFunctions.apiVersion).keys[0].value}'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${stgForFunctions.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stgForFunctions.listKeys().keys[0].value}'
         }
       ]
     }
@@ -209,8 +223,9 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
 }
 
 // Function
-resource function 'Microsoft.Web/sites/functions@2022-03-01' = {
-  name: '${functionApp.name}/funcapp-tobp-${uniqueString(resourceGroup().id)}'
+resource function 'Microsoft.Web/sites/functions@2022-09-01' = {
+  parent: functionApp
+  name: 'funcapp-tobp-${uniqueString(resourceGroup().id)}'
   properties: {
     function_app_id: functionApp.id
     config: {
@@ -239,7 +254,7 @@ public static void Run(string mySbMsg, ILogger log)
   }
 }
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: 'appservice-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
@@ -249,7 +264,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   properties: {}
 }
 
-resource appService 'Microsoft.Web/sites@2022-03-01' = {
+resource appService 'Microsoft.Web/sites@2022-09-01' = {
   name: 'webapp-tobp-${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
