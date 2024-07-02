@@ -38,14 +38,18 @@ az deployment group create -f deploy.bicep -g $RESOURCE_GROUP -o none
 az deployment group show -g $RESOURCE_GROUP -n deploy --query properties.outputs
 ```
 
-The last command will output the relevant parameters that you need to replace in the following files:
+The last command will output most of the relevant parameters that you need to replace in the following files:
 
 - [Contacts.API/appsettings.json](Contacts.API/appsettings.json)
 - [Contacts.EventsProcessor/appsettings.json](Contacts.EventsProcessor/appsettings.json)
 
+> Copy the **ServiceBus connection string** and **Cosmos DB account key** directly from the Portal! You won't find them in the output of the deployment.
+
 Your Azure resource group should look like this:
 
 ![Azure Resources](Images/azure_resources.png "Azure Resources after a successful deployment")
+
+> **WARNING**: We running this in production, you should adjust the code to use [*Managed Identities*](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) to access Cosmos DB and Service Bus!
 
 ## Run the API and Events Processor locally
 
