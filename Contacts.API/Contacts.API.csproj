@@ -8,7 +8,7 @@
     <ItemGroup>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.10.0" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.44.1" />
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     </ItemGroup>
 
